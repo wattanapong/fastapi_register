@@ -49,11 +49,6 @@ def login(request: Request):
 def register(request: Request):
     return templates.TemplateResponse("register.html", {"request": request})
 
-MAX_PASSWORD_BYTES = 72
-
-def safe_password(password: str) -> str:
-    return password.encode("utf-8")[:MAX_PASSWORD_BYTES].decode("utf-8", "ignore")
-
 @app.post("/register")
 def register(
     username: str = Form(...),
@@ -77,10 +72,7 @@ def register(
             raise HTTPException(status_code=400, detail="Email already registered")
 
     # 🔐 4. Hash password
-    safe_pw = safe_password(password)
-    print(safe_pw)
-    print(len(safe_pw))
-    hashed_password = pwd_context.hash(safe_pw)
+    hashed_password = pwd_context.hash(password)
 
     # 📝 5. Save to Google Sheets
     sheet.append_row([username, email, tel, hashed_password])
